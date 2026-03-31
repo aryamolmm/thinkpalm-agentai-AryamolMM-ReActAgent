@@ -1,6 +1,0 @@
-User: What is 5 * 10?
-Thought: This is a math question
-Action: Using calculator
-Input: 5 * 10
-Observation: 50
-Final Answer: 50
