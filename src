@@ -1,0 +1,71 @@
+import re
+
+class MockLLM:
+    """Mock LLM to demonstrate the reasoning loop without needing API keys."""
+    def __init__(self):
+        self.responses = [
+            "Thought: I need to calculate 25 * 4 first using the calculator tool.\nAction: calculate\nAction Input: 25 * 4",
+            "Thought: The calculation gave me 100. Now I just need to return this to the user.\nFinal Answer: 25 multiplied by 4 is 100."
+        ]
+        self.idx = 0
+
+    def generate(self, prompt):
+        if self.idx < len(self.responses):
+            res = self.responses[self.idx]
+            self.idx += 1
+            return res
+        return "Final Answer: Error"
+
+def calculate(expression):
+    """A simple tool that safely evaluates math expressions."""
+    try:
+        # allow only numbers and basic operators to prevent execution of arbitrary code
+        safe_expr = re.sub(r'[^0-9+\-*/(). ]', '', expression)
+        return str(eval(safe_expr))
+    except Exception as e:
+        return f"Error: {e}"
+
+tools = {"calculate": calculate}
+
+def run_agent(query):
+    print(f"[User Query]: {query}")
+    print("-" * 50)
+    
+    llm = MockLLM()
+    prompt = f"Question: {query}\n"
+    
+    for step in range(1, 6):
+        print(f"\n--- Reason & Act Step {step} ---")
+        
+        # LLM Generates Thought + Action
+        response = llm.generate(prompt)
+        print(response)
+        
+        # Check if the LLM has reached a final answer
+        if "Final Answer:" in response:
+            print("\n" + "=" * 50)
+            print("Finished!")
+            break
+            
+        # Parse for Action and Action Input
+        action_match = re.search(r"Action:\s*(.*)\nAction Input:\s*(.*)", response)
+        if action_match:
+            action = action_match.group(1).strip()
+            action_input = action_match.group(2).strip()
+            
+            # Execute the tool
+            if action in tools:
+                observation = tools[action](action_input)
+                print(f"Observation: {observation}")
+                
+                # Append result to prompt for next iteration
+                prompt += f"{response}\nObservation: {observation}\n"
+            else:
+                print(f"Observation: Tool '{action}' not found.")
+                prompt += f"{response}\nObservation: Tool '{action}' not found.\n"
+        else:
+            print("Error: Invalid LLM format.")
+            break
+
+if __name__ == "__main__":
+    run_agent("What is 25 multiplied by 4?")
