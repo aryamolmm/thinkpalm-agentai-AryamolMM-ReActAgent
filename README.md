@@ -23,3 +23,8 @@ The agent takes a user query, thinks step-by-step, uses a tool (calculator/searc
 - **Action** → Chooses a tool (calculator/search)  
 - **Observation** → Gets result from tool  
 - **Final Answer** → Displays result  
+
+ ## Observations
+- ReAct pattern helps combine reasoning and tool usage  
+- Works well for simple queries  
+- Can be extended using real AI models like GPT  
