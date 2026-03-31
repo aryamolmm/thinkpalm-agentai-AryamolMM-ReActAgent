@@ -17,3 +17,9 @@ The agent takes a user query, thinks step-by-step, uses a tool (calculator/searc
 1. Open the `.ipynb` file in Google Colab  
 2. Run all cells  
 3. Enter a query like:
+
+## output
+- **Thought** → Agent understands the query  
+- **Action** → Chooses a tool (calculator/search)  
+- **Observation** → Gets result from tool  
+- **Final Answer** → Displays result  
